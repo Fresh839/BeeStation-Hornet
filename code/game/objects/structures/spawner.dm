@@ -92,3 +92,15 @@
 	name = "wumborian fugu den"
 	desc = "A den housing a nest of wumborian fugus, how do they all even fit in there?"
 	mob_types = list(/mob/living/simple_animal/hostile/asteroid/fugu)
+
+/obj/structure/spawner/zombie
+	name = "Corpse pit"
+	desc = "A pit full of corpses, and some still seem to be moving..."
+	icon_state = "hole"
+	icon = 'icons/mob/nest.dmi'
+	max_integrity = 2000
+	max_mobs = 5
+	spawn_time = 300
+	mob_types = list(/mob/living/simple_animal/hostile/zombie)
+	spawn_text = "climbs out of"
+	resistance_flags = INDESTRUCTIBLE

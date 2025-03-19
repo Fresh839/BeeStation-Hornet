@@ -233,6 +233,12 @@
 		/obj/item/stock_parts/capacitor = 1)
 	needs_anchored = FALSE
 
+/obj/item/circuitboard/machine/fluid_power_generator
+	name = "Fluid-type generator (Machine Board)"
+	icon_state = "engineering"
+	build_path = /obj/machinery/power/port_gen/fluid_power_generator
+	needs_anchored = FALSE
+
 /obj/item/circuitboard/machine/pacman/super
 	name = "SUPERPACMAN-type generator (Machine Board)"
 	build_path = /obj/machinery/power/port_gen/pacman/super

@@ -7,9 +7,9 @@
 	mob_biotypes = list(MOB_ORGANIC, MOB_HUMANOID)
 	speak_chance = 0
 	stat_attack = HARD_CRIT //braains
-	maxHealth = 100
-	health = 100
-	melee_damage = 21
+	maxHealth = 50
+	health = 50
+	melee_damage = 10
 	attack_verb_continuous = "bites"
 	attack_verb_simple = "bite"
 	attack_sound = 'sound/hallucinations/growl1.ogg'
@@ -19,11 +19,16 @@
 	spacewalk = FALSE
 	status_flags = CANPUSH
 	del_on_death = TRUE
-	var/zombiejob = JOB_NAME_MEDICALDOCTOR
+	var/zombiejob = JOB_NAME_CARGOTECHNICIAN
 	var/infection_chance = 0
 	var/obj/effect/mob_spawn/human/corpse/delayed/corpse
 	mobchatspan = "bartender"
 	discovery_points = 3000
+	vision_range = 9
+	aggro_vision_range = 9	//How many tiles until loss of aggro
+	obj_damage = 30
+	melee_queue_distance = 4 //Prepare to instahit, normal is 4
+	move_to_delay = 15 //Normal is 3
 
 /mob/living/simple_animal/hostile/zombie/Initialize(mapload)
 	. = ..()

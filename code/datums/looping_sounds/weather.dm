@@ -51,3 +51,24 @@
 	mid_length = 1669 // exact length of the music in ticks
 	volume = 100
 	extra_range = 30
+
+/datum/looping_sound/rain_start
+	mid_sounds = list(
+		'sound/ambience/acidrain_start.ogg'=1,
+		)
+	mid_length = 80
+	volume = 60
+
+/datum/looping_sound/rain_mid
+	mid_sounds = list(
+		'sound/ambience/acidrain_mid.ogg'=1,
+		)
+	mid_length = 80
+	volume = 60
+
+/datum/looping_sound/rain_end
+	mid_sounds = list(
+		'sound/ambience/acidrain_end.ogg'=1,
+		)
+	mid_length = 80
+	volume = 60

@@ -129,7 +129,7 @@
 	return FALSE
 
 /obj/machinery/power/port_gen/pacman/DropFuel()
-	if(sheets)
+	if(sheets > 0)
 		new sheet_path(drop_location(), sheets)
 		sheets = 0
 
@@ -298,3 +298,162 @@
 
 /obj/machinery/power/port_gen/pacman/mrs/overheat()
 	explosion(src.loc, 4, 4, 4, -1)
+
+
+// Fluid power generator
+
+/obj/machinery/power/port_gen/fluid_power_generator
+	name = "\improper Fluid-type portable generator"
+	circuit = /obj/item/circuitboard/machine/fluid_power_generator
+	power_gen = 100
+	var/fluid_current_amount = 0
+	var/fluid_max_amount = 1000
+	var/fluid_name = ""
+	var/fluid_path = /datum/reagent/consumable/milk
+	var/time_per_fluid_liter = 10
+
+/obj/machinery/power/port_gen/fluid_power_generator/Initialize(mapload)
+	. = ..()
+	if(anchored)
+		connect_to_network()
+
+/obj/machinery/power/port_gen/fluid_power_generator/Initialize(mapload)
+	. = ..()
+
+	var/obj/S = fluid_path
+	fluid_name = initial(S.name)
+
+/obj/machinery/power/port_gen/fluid_power_generator/examine(mob/user)
+	. = ..()
+	. += "<span class='notice'>The generator has [fluid_current_amount] units of [fluid_name] fuel left, producing [display_power(power_gen)] per cycle.</span>"
+	if(anchored)
+		. += "<span class='notice'>It is anchored to the ground.</span>"
+
+/obj/machinery/power/port_gen/fluid_power_generator/HasFuel()
+	if(fluid_current_amount > 0)
+		return TRUE
+	return FALSE
+
+/obj/machinery/power/port_gen/fluid_power_generator/UseFuel()
+	var/needed_fuel = 1 / time_per_fluid_liter
+	fluid_current_amount -= needed_fuel
+
+/obj/machinery/power/port_gen/fluid_power_generator/set_anchored(anchorvalue)
+	. = ..()
+	if(isnull(.))
+		return //no need to process if we didn't change anything.
+	if(anchorvalue)
+		connect_to_network()
+	else
+		disconnect_from_network()
+
+/obj/machinery/power/port_gen/fluid_power_generator/attackby(obj/item/O, mob/user, params)
+	if(istype(O, /obj/item/reagent_containers))
+
+		var/obj/item/reagent_containers/container = O
+		if(O.reagents.total_volume < 0)
+			to_chat(user, "<span class='warning'>[src] is empty!</span>")
+			return
+
+		if(fluid_current_amount == fluid_max_amount)
+			to_chat(user, "<span class='warning'> Generator is full.</span>")
+			return
+
+		var/transfer = 0
+		if(container.reagents.total_volume > 0)
+			if(container.reagents.total_volume >= container.amount_per_transfer_from_this) // Transfer is smaller than what's stored in the container
+				transfer = container.amount_per_transfer_from_this
+			else //Transfer is bigger than what's stored in the container => Reduce transfer amount
+				transfer = (container.amount_per_transfer_from_this - O.reagents.total_volume)
+				transfer = (container.amount_per_transfer_from_this - transfer)
+
+			if((fluid_current_amount + transfer) < fluid_max_amount ) //Transfer is smaller than max of generator
+				fluid_current_amount += transfer
+				container.reagents.total_volume -= transfer
+				to_chat(user, "<span class='notice'>You add [transfer] [fluid_name] to the [src.name].</span>")
+			else	//Transfer is bigger than max of generator => Reduce transfer amount
+				var/transfer_overfill = (fluid_current_amount + transfer) - fluid_max_amount
+				transfer -= transfer_overfill
+				fluid_current_amount += transfer
+				O.reagents.total_volume -= transfer
+				to_chat(user, "<span class='notice'>You add [transfer] [fluid_name] to the [src.name].</span>")
+		return
+
+	else if(!active)
+		if(O.tool_behaviour == TOOL_WRENCH)
+			if(!anchored && !isinspace())
+				set_anchored(TRUE)
+				to_chat(user, "<span class='notice'>You secure the generator to the floor.</span>")
+			else if(anchored)
+				set_anchored(FALSE)
+				to_chat(user, "<span class='notice'>You unsecure the generator from the floor.</span>")
+
+			playsound(src, 'sound/items/deconstruct.ogg', 50, TRUE)
+			return
+		else if(O.tool_behaviour == TOOL_SCREWDRIVER)
+			panel_open = !panel_open
+			O.play_tool_sound(src)
+			if(panel_open)
+				to_chat(user, "<span class='notice'>You open the access panel.</span>")
+			else
+				to_chat(user, "<span class='notice'>You close the access panel.</span>")
+			return
+		else if(default_deconstruction_crowbar(O))
+			return
+	return ..()
+
+/obj/machinery/power/port_gen/fluid_power_generator/on_emag(mob/user)
+	..()
+	emp_act(EMP_HEAVY)
+
+/obj/machinery/power/port_gen/fluid_power_generator/attack_ai(mob/user)
+	interact(user)
+
+/obj/machinery/power/port_gen/fluid_power_generator/attack_paw(mob/user)
+	interact(user)
+
+
+/obj/machinery/power/port_gen/fluid_power_generator/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/power/port_gen/fluid_power_generator/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "PortableFluidGenerator")
+		ui.open()
+		ui.set_autoupdate(TRUE) // Fuel left, power generated, power in powernet, current heat(?)
+
+/obj/machinery/power/port_gen/fluid_power_generator/ui_data()
+	var/data = list()
+
+	data["active"] = active
+	data["sheet_name"] = capitalize(fluid_name)
+	data["sheets"] = fluid_current_amount
+	data["stack_percent"] = round(fluid_current_amount/fluid_max_amount*100, 0.1)
+
+	data["anchored"] = anchored
+	data["connected"] = (powernet == null ? 0 : 1)
+	data["ready_to_boot"] = anchored && HasFuel()
+	data["power_generated"] = display_power(power_gen)
+	data["power_output"] = display_power(power_gen * power_output)
+	data["power_available"] = (powernet == null ? 0 : display_power(avail()))
+	data["current_heat"] = 0
+	. =  data
+
+/obj/machinery/power/port_gen/fluid_power_generator/ui_act(action, params)
+	if(..())
+		return
+	switch(action)
+		if("toggle_power")
+			TogglePower()
+			. = TRUE
+
+		if("lower_power")
+			if (power_output > 1)
+				power_output--
+				. = TRUE
+
+		if("higher_power")
+			if (power_output < 4 || (obj_flags & EMAGGED))
+				power_output++
+				. = TRUE
