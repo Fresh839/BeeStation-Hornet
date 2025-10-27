@@ -120,6 +120,7 @@
 		if (!fexists("_maps/[map_path]/[map_file]"))
 			log_world("Map file ([map_path]/[map_file]) does not exist!")
 			return
+
 	// "map_file": ["Lower.dmm", "Upper.dmm"]
 	else if (islist(map_file))
 		for (var/file in map_file)
@@ -206,8 +207,8 @@
 		. += "_maps/[map_path]/[file]"
 
 /datum/map_config/proc/is_votable()
-	var/below_max = !(config_max_users) || GLOB.clients.len <= config_max_users
-	var/above_min = !(config_min_users) || GLOB.clients.len >= config_min_users
+	var/below_max = !(config_max_users) || GLOB.clients_unsafe.len <= config_max_users
+	var/above_min = !(config_min_users) || GLOB.clients_unsafe.len >= config_min_users
 	return votable && below_max && above_min
 
 /datum/map_config/proc/MakeNextMap()

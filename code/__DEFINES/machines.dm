@@ -3,19 +3,23 @@
 #define AREA_USAGE_EQUIP			1
 #define AREA_USAGE_LIGHT			2
 #define AREA_USAGE_ENVIRON			3
-#define AREA_USAGE_STATIC_EQUIP 	4
-#define AREA_USAGE_STATIC_LIGHT	5
+#define AREA_USAGE_STATIC_EQUIP		4
+#define AREA_USAGE_STATIC_LIGHT		5
 #define AREA_USAGE_STATIC_ENVIRON	6
 #define AREA_USAGE_LEN AREA_USAGE_STATIC_ENVIRON // largest idx
+
 /// Index of the first dynamic usage channel
 #define AREA_USAGE_DYNAMIC_START AREA_USAGE_EQUIP
 /// Index of the last dynamic usage channel
 #define AREA_USAGE_DYNAMIC_END AREA_USAGE_ENVIRON
+
 /// Index of the first static usage channel
 #define AREA_USAGE_STATIC_START AREA_USAGE_STATIC_EQUIP
 /// Index of the last static usage channel
 #define AREA_USAGE_STATIC_END AREA_USAGE_STATIC_ENVIRON
 
+#define DYNAMIC_TO_STATIC_CHANNEL(dyn_channel) (dyn_channel + (AREA_USAGE_STATIC_START - AREA_USAGE_DYNAMIC_START))
+#define STATIC_TO_DYNAMIC_CHANNEL(static_channel) (static_channel - (AREA_USAGE_STATIC_START - AREA_USAGE_DYNAMIC_START))
 
 //Power use
 #define NO_POWER_USE 0
@@ -32,13 +36,14 @@
 #define BOLTS	(1<<2)
 #define SHOCK	(1<<3)
 #define SAFE	(1<<4)
+#define EMERGENCY (1<<5)
 
 //used in design to specify which machine can build it
 #define IMPRINTER		(1<<0)	//For circuits. Uses glass/chemicals.
 #define PROTOLATHE		(1<<1)	//New stuff. Uses glass/iron/chemicals
 #define AUTOLATHE		(1<<2)	//Uses glass/iron only.
 #define CRAFTLATHE		(1<<3)	//Uses fuck if I know. For use eventually.
-#define MECHFAB			(1<<4) 	//Remember, objects utilising this flag should have construction_time and construction_cost vars.
+#define MECHFAB			(1<<4) 	//Remember, objects utilising this flag should have construction_time var.
 #define BIOGENERATOR	(1<<5) 	//Uses biomass
 #define LIMBGROWER		(1<<6) 	//Uses synthetic flesh
 #define SMELTER			(1<<7) 	//uses various minerals
@@ -60,11 +65,33 @@
 #define MC_NET "NET"
 #define MC_PRINT "PRINT"
 #define MC_CELL "CELL"
-#define MC_CHARGE "CHARGE"
+#define MC_CHARGER "CHARGER"
 #define MC_AI "AI"
 #define MC_SENSORS "SENSORS"
 #define MC_SIGNALLER "SIGNALER"
 #define MC_IDENTIFY "IDENTIFY"
+#define MC_CAMERA "CAMERA"
+
+//Chance Defines
+#define MC_PART_DROP_CHANCE 50
+
+//Trojan defines
+#define BREACHER "BREACHER"
+#define SLEDGE "SLEDGE"
+
+// Antivirus Defines
+#define ANTIVIRUS_NONE 0
+#define ANTIVIRUS_BASIC 1
+#define ANTIVIRUS_MEDIUM 2
+#define ANTIVIRUS_GOOD 3
+#define ANTIVIRUS_BEST 4
+
+// Part tier defines (now used for battery sizes)
+#define PART_TIER_1 1
+#define PART_TIER_2 2
+#define PART_TIER_3 3
+#define PART_TIER_4 4
+#define PART_TIER_5 5
 
 //! ## NTNet stuff, for modular computers
 //!  **NTNet module-configuration values. Do not change these. If you need to add another use larger number (5..6..7 etc)**
@@ -72,6 +99,13 @@
 #define NTNET_PEERTOPEER 2			//! P2P transfers of files between devices
 #define NTNET_COMMUNICATION 3		//! Communication (messaging)
 #define NTNET_SYSTEMCONTROL 4		//! Control of various systems, RCon, air alarm control, etc.
+
+// Types of Signal for Network Card Components!
+#define	SIGNAL_NO 0
+#define SIGNAL_LOW 1
+#define SIGNAL_HIGH 2
+#define SIGNAL_NO_RELAY 3
+#define SIGNAL_HACKED 4
 
 //! **NTNet transfer speeds, used when downloading/uploading a file/program.**
 #define NTNETSPEED_LOWSIGNAL 0.5	//! GQ/s transfer speed when the device is wirelessly connected and on Low signal
@@ -82,11 +116,6 @@
 #define MAX_NTNET_LOGS 300
 #define MIN_NTNET_LOGS 10
 
-//Program bitflags
-#define PROGRAM_ALL		(~0)
-#define PROGRAM_CONSOLE	(1<<0)
-#define PROGRAM_LAPTOP	(1<<1)
-#define PROGRAM_TABLET	(1<<2)
 //Program states
 #define PROGRAM_STATE_KILLED 0
 #define PROGRAM_STATE_BACKGROUND 1
@@ -112,6 +141,11 @@
 #define SUPERMATTER_DANGER 4		// Integrity < 50%
 #define SUPERMATTER_EMERGENCY 5		// Integrity < 25%
 #define SUPERMATTER_DELAMINATING 6	// Pretty obvious.
+
+#define NUCLEAR_REACTOR_ERROR -1
+#define NUCLEAR_REACTOR_INACTIVE 0
+#define NUCLEAR_REACTOR_ACTIVE 1
+#define NUCLEAR_EXPLODING 2
 
 //Nuclear bomb stuff
 #define NUKESTATE_INTACT		5
@@ -153,7 +187,6 @@
 #define ERROR_COMMITED_SUICIDE 205
 #define ERROR_SOUL_DEPARTED 206
 #define ERROR_SUICIDED_BODY 207
-#define ERROR_SOUL_DAMNED 666
 #define ERROR_UNCLONABLE 901
 
 //these flags are used to tell the DNA modifier if a plant gene cannot be extracted or modified.
@@ -220,12 +253,6 @@ GLOBAL_LIST_INIT(approved_status_pictures, list(
 
 #define CHUNK_SIZE 16 // Only chunk sizes that are to the power of 2. E.g: 2, 4, 8, 16, etc..
 
-// Circulator defines
-// ---------------------------------------------------
-
-#define CIRCULATOR_HOT 0
-#define CIRCULATOR_COLD 1
-
 // Particle Accelerator defines
 // ---------------------------------------------------
 
@@ -244,3 +271,41 @@ GLOBAL_LIST_INIT(approved_status_pictures, list(
 // ---------------------------------------------------
 
 #define SENTENCE_MAX_TIMER 10 HOURS //Permabrig.
+
+// Camera defines
+// ---------------------------------------------------
+
+// Station networks
+#define CAMERA_NETWORK_STATION "ss13"
+#define CAMERA_NETWORK_VAULT "vault"
+#define CAMERA_NETWORK_RESEARCH "research"
+#define CAMERA_NETWORK_ENGINEERING "engineer"
+#define CAMERA_NETWORK_MEDICAL "medical"
+#define CAMERA_NETWORK_THUNDERDOME "thunder"
+#define CAMERA_NETWORK_AUXBASE "auxbase"
+#define CAMERA_NETWORK_LABOR "labor"
+#define CAMERA_NETWORK_PRISON "prison"
+#define CAMERA_NETWORK_MINE "mine"
+#define CAMERA_NETWORK_TOXINS_TEST "toxins_test"
+#define CAMERA_NETWORK_INTERROGATION "interrogation"
+#define CAMERA_NETWORK_MINISAT "minisat"
+#define CAMERA_NETWORK_AI_UPLOAD "aiupload"
+#define CAMERA_NETWORK_TCOMMS "tcomms"
+#define CAMERA_NETWORK_COURT "court"
+#define CAMERA_NETWORK_EVAC "evac"
+#define CAMERA_NETWORK_CARAVAN_SYNDICATE "caravan_syndicate"
+#define CAMERA_NETWORK_THEATHRE "theathre"
+
+// Off-station networks
+#define CAMERA_NETWORK_BUNKER "bunker"
+
+// Special
+#define CAMERA_NETWORK_PRIVATE "private"
+
+// Air alarm buildstage [/obj/machinery/airalarm/buildstage]
+/// Air alarm missing circuit
+#define AIRALARM_BUILD_NO_CIRCUIT 0
+/// Air alarm has circuit but is missing wires
+#define AIRALARM_BUILD_NO_WIRES 1
+/// Air alarm has all components but isn't completed
+#define AIRALARM_BUILD_COMPLETE 2

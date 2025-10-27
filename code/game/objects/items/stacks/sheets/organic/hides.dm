@@ -25,6 +25,7 @@
 	desc = "The by-product of human farming."
 	singular_name = "human skin piece"
 	novariants = FALSE
+	trade_flags = TRADE_CONTRABAND
 	merge_type = /obj/item/stack/sheet/animalhide/human
 
 /obj/item/stack/sheet/animalhide/human/get_recipes()
@@ -38,6 +39,7 @@
 	singular_name = "corgi hide piece"
 	icon_state = "sheet-corgi"
 	item_state = "sheet-corgi"
+	trade_flags = TRADE_CONTRABAND
 	merge_type = /obj/item/stack/sheet/animalhide/corgi
 
 /obj/item/stack/sheet/animalhide/corgi/get_recipes()
@@ -74,6 +76,7 @@
 	singular_name = "cat hide piece"
 	icon_state = "sheet-cat"
 	item_state = "sheet-cat"
+	trade_flags = TRADE_CONTRABAND
 	merge_type = /obj/item/stack/sheet/animalhide/cat
 
 /* Monkey hide */
@@ -145,9 +148,9 @@
 /obj/item/stack/sheet/animalhide/attackby(obj/item/W, mob/user, params)
 	if(W.is_sharp())
 		playsound(loc, 'sound/weapons/slice.ogg', 50, 1, -1)
-		user.visible_message("[user] starts cutting hair off \the [src].", "<span class='notice'>You start cutting the hair off \the [src]...</span>", "<span class='italics'>You hear the sound of a knife rubbing against flesh.</span>")
+		user.visible_message("[user] starts cutting hair off \the [src].", span_notice("You start cutting the hair off \the [src]..."), span_italics("You hear the sound of a knife rubbing against flesh."))
 		if(do_after(user, 50, target = src))
-			to_chat(user, "<span class='notice'>You cut the hair from this [src.singular_name].</span>")
+			to_chat(user, span_notice("You cut the hair from this [src.singular_name]."))
 			new /obj/item/stack/sheet/leather/hairlesshide(user.drop_location(), 1)
 			use(1)
 	else

@@ -4,7 +4,7 @@
 	icon_state = "grub_1"
 	icon_living = "grub_1"
 	icon_dead = "grub_1_dead"
-	mob_biotypes = list(MOB_ORGANIC, MOB_BEAST)
+	mob_biotypes = MOB_ORGANIC | MOB_BEAST
 	butcher_results = list(/obj/effect/decal/cleanable/insectguts = 1)
 	damage_coeff = list(BRUTE = 1, BURN = 2, TOX = -1, CLONE = 0, STAMINA = 0, OXY = 0) //can't be eaten by slimes, and healed by toxin damage
 	turns_per_move = 5
@@ -22,7 +22,7 @@
 	response_harm_simple = "squish"
 	density = FALSE
 	ventcrawler = VENTCRAWLER_ALWAYS
-	faction = list("hostile")
+	faction = list(FACTION_HOSTILE)
 	attack_sound = 'sound/effects/blobattack.ogg'
 	pass_flags = PASSTABLE | PASSMOB
 	mob_size = MOB_SIZE_TINY
@@ -39,7 +39,7 @@
 	var/hibernationcounter = 0
 	var/list/grub_diseases = list()
 
-/mob/living/simple_animal/hostile/redgrub/proc/isslimetarget(var/mob/living/M)
+/mob/living/simple_animal/hostile/redgrub/proc/isslimetarget(mob/living/M)
 	if(isoozeling(M))
 //	if(isslimeperson(M) || isluminescent(M) || isoozeling(M) || isstargazer(M)) // i hate this
 		return TRUE
@@ -97,19 +97,15 @@
 	else
 		hibernationcounter ++
 
-/mob/living/simple_animal/hostile/redgrub/extrapolator_act(mob/living/user, obj/item/extrapolator/extrapolator, dry_run = FALSE)
-	. = ..()
-	EXTRAPOLATOR_ACT_ADD_DISEASES(., grub_diseases)
-
 /mob/living/simple_animal/hostile/redgrub/proc/togglehibernation()
 	if(hibernating)
 		hibernating = FALSE
 		stop_automated_movement = 0
 		hibernationcounter = 0
 		if(target)
-			visible_message("<span class='warning'>[src] uncurls and starts moving towards [target].</span>")
+			visible_message(span_warning("[src] uncurls and starts moving towards [target]."))
 		else
-			visible_message("<span class='warning'>[src] uncurls.</span>")
+			visible_message(span_warning("[src] uncurls."))
 		switch(growthstage)
 			if(1)
 				icon_state = "grub_1"
@@ -124,7 +120,7 @@
 				icon_living = "grub_3"
 				icon_dead = "grub_3_dead"
 	else
-		visible_message("<span class='warning'>[src] curls up and stops moving.</span>") //fake death
+		visible_message(span_warning("[src] curls up and stops moving.")) //fake death
 		icon_state = icon_dead
 		icon_living = icon_dead
 		hibernating = TRUE
@@ -196,17 +192,17 @@
 		return // can't attack while eating!
 
 	if(HAS_TRAIT(M, TRAIT_PACIFISM))
-		to_chat(M, "<span class='notice'>You don't want to hurt anyone!</span>")
+		to_chat(M, span_notice("You don't want to hurt anyone!"))
 		return FALSE
-	var/datum/status_effect/slimegrub/status = M.has_status_effect(STATUS_EFFECT_SLIMEGRUB)
+	var/datum/status_effect/slimegrub/status = M.has_status_effect(/datum/status_effect/slimegrub)
 	if(status)
 		status.diseases += grub_diseases
 		status.deathcounter -= (40 * growthstage)
 		status.spawnbonus += 1
 	else
-		var/datum/status_effect/slimegrub/newstatus = M.apply_status_effect(STATUS_EFFECT_SLIMEGRUB)
+		var/datum/status_effect/slimegrub/newstatus = M.apply_status_effect(/datum/status_effect/slimegrub)
 		newstatus.diseases += grub_diseases
-	M.visible_message("<span class='warning'>[M] swallows [src] whole!</span>", "<span class='userdanger'>[src] burrows into your cytoplasm when you bite it!</span>")
+	M.visible_message(span_warning("[M] swallows [src] whole!"), span_userdanger("[src] burrows into your cytoplasm when you bite it!"))
 	qdel(src)
 
 /mob/living/simple_animal/hostile/redgrub/environment_temperature_is_safe(datum/gas_mixture/environment)
@@ -223,14 +219,14 @@
 		var/mob/living/carbon/human/M = target
 		food += 10
 		if(growthstage >= 3)
-			M.visible_message("<span class='danger'>the [src] begins burrowing into [M]!</span>", \
-						"<span class='userdanger'>[src] is trying to burrow into your cytoplasm!</span>")
+			M.visible_message(span_danger("the [src] begins burrowing into [M]!"), \
+						span_userdanger("[src] is trying to burrow into your cytoplasm!"))
 			if(M.can_inject(src) && do_after(src, 15, M))
 				for(var/datum/disease/D in grub_diseases)
 					if(D.spread_flags & DISEASE_SPREAD_FALTERED)
 						continue
 					M.ForceContractDisease(D)
-				to_chat(M, "<span class ='userdanger'>[src] burrows into your cytoplasm!</span>")
+				to_chat(M, span_userdanger("[src] burrows into your cytoplasm!"))
 				playsound(src.loc, 'sound/effects/blobattack.ogg', 60, TRUE)
 				death()
 				qdel(src)

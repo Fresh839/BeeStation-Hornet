@@ -7,7 +7,7 @@
 	id = "bucket"
 	build_type = AUTOLATHE | PROTOLATHE
 	materials = list(/datum/material/iron = 200)
-	build_path = /obj/item/reagent_containers/glass/bucket
+	build_path = /obj/item/reagent_containers/cup/bucket
 	category = list("initial","Tools","Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_SERVICE
 
@@ -205,15 +205,6 @@
 	category = list("initial", "Electronics")
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING
 
-/datum/design/aac_electronics
-	name = "Airlock Controller Electronics"
-	id = "aac_electronics"
-	build_type = AUTOLATHE | PROTOLATHE
-	materials = list(/datum/material/iron = 50, /datum/material/glass = 50)
-	build_path = /obj/item/electronics/advanced_airlock_controller
-	category = list("initial", "Electronics")
-	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING
-
 /datum/design/firealarm_electronics
 	name = "Fire Alarm Electronics"
 	id = "firealarm_electronics"
@@ -390,7 +381,7 @@
 	id = "bowl"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/glass = 500)
-	build_path = /obj/item/reagent_containers/glass/bowl
+	build_path = /obj/item/reagent_containers/cup/bowl
 	category = list("initial","Dinnerware")
 
 /datum/design/drinking_glass
@@ -398,7 +389,7 @@
 	id = "drinking_glass"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/glass = 500)
-	build_path = /obj/item/reagent_containers/food/drinks/drinkingglass
+	build_path = /obj/item/reagent_containers/cup/glass/drinkingglass
 	category = list("initial","Dinnerware")
 
 /datum/design/shot_glass
@@ -406,7 +397,7 @@
 	id = "shot_glass"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/glass = 100)
-	build_path = /obj/item/reagent_containers/food/drinks/drinkingglass/shotglass
+	build_path = /obj/item/reagent_containers/cup/glass/drinkingglass/shotglass
 	category = list("initial","Dinnerware")
 
 /datum/design/shaker
@@ -414,7 +405,7 @@
 	id = "shaker"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 1500)
-	build_path = /obj/item/reagent_containers/food/drinks/shaker
+	build_path = /obj/item/reagent_containers/cup/glass/shaker
 	category = list("initial","Dinnerware")
 
 /datum/design/cultivator
@@ -538,7 +529,7 @@
 	id = "beaker"
 	build_type = AUTOLATHE | PROTOLATHE
 	materials = list(/datum/material/glass = 500)
-	build_path = /obj/item/reagent_containers/glass/beaker
+	build_path = /obj/item/reagent_containers/cup/beaker
 	category = list("initial", "Medical", "Medical Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SERVICE
 
@@ -547,7 +538,7 @@
 	id = "large_beaker"
 	build_type = AUTOLATHE | PROTOLATHE
 	materials = list(/datum/material/glass = 2500)
-	build_path = /obj/item/reagent_containers/glass/beaker/large
+	build_path = /obj/item/reagent_containers/cup/beaker/large
 	category = list("initial", "Medical", "Medical Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SERVICE
 
@@ -800,7 +791,7 @@
 	name = "Shotgun Slug"
 	id = "shotgun_slug"
 	build_type = AUTOLATHE
-	materials = list(/datum/material/iron = 4000)
+	materials = list(/datum/material/iron = 4000, /datum/material/copper = 500)
 	build_path = /obj/item/ammo_casing/shotgun
 	category = list("hacked", "Security")
 
@@ -808,15 +799,23 @@
 	name = "Buckshot Shell"
 	id = "buckshot_shell"
 	build_type = AUTOLATHE
-	materials = list(/datum/material/iron = 4000)
+	materials = list(/datum/material/iron = 4000, /datum/material/copper = 500)
 	build_path = /obj/item/ammo_casing/shotgun/buckshot
+	category = list("hacked", "Security")
+
+/datum/design/buckshot_armour_shell
+	name = "Armour-Piercing Buckshot Shell"
+	id = "buckshot_armour_shell"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 3000, /datum/material/gold = 500)
+	build_path = /obj/item/ammo_casing/shotgun/buckshot/armour_piercing
 	category = list("hacked", "Security")
 
 /datum/design/shotgun_dart
 	name = "Shotgun Dart"
 	id = "shotgun_dart"
 	build_type = AUTOLATHE
-	materials = list(/datum/material/iron = 4000)
+	materials = list(/datum/material/iron = 4000, /datum/material/silver = 2000)
 	build_path = /obj/item/ammo_casing/shotgun/dart
 	category = list("hacked", "Security")
 
@@ -824,7 +823,7 @@
 	name = "Incendiary Slug"
 	id = "incendiary_slug"
 	build_type = AUTOLATHE
-	materials = list(/datum/material/iron = 4000)
+	materials = list(/datum/material/iron = 4000, /datum/material/plasma = 500)
 	build_path = /obj/item/ammo_casing/shotgun/incendiary
 	category = list("hacked", "Security")
 
@@ -908,6 +907,15 @@
 	build_path = /obj/item/dest_tagger
 	category = list("initial", "Electronics")
 
+/datum/design/salestagger
+	name = "Sales Tagger"
+	id = "salestagger"
+	build_type = AUTOLATHE | PROTOLATHE
+	materials = list(/datum/material/iron = 700, /datum/material/glass = 200)
+	build_path = /obj/item/sales_tagger
+	category = list("initial", "Electronics")
+	departmental_flags = DEPARTMENTAL_FLAG_CARGO | DEPARTMENTAL_FLAG_SERVICE
+
 /datum/design/handlabeler
 	name = "Hand Labeler"
 	id = "handlabel"
@@ -956,7 +964,7 @@
 	id = "laptop"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 10000, /datum/material/glass = 1000)
-	build_path = /obj/item/modular_computer/laptop/buildable
+	build_path = /obj/item/modular_computer/laptop
 	category = list("initial","Misc")
 
 /datum/design/tablet
@@ -1117,3 +1125,29 @@
 	category = list("initial", "Construction")
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SERVICE
 
+/datum/design/potion
+	name = "Potion Bottle"
+	id = "potion"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/glass = 500)
+	build_path = /obj/item/reagent_containers/cup/bottle/big_potion
+	category = list("initial", "Medical")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE | DEPARTMENTAL_FLAG_MEDICAL
+
+/datum/design/small_potion
+	name = "Small Potion Bottle"
+	id = "small_potion"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/glass = 200)
+	build_path = /obj/item/reagent_containers/cup/bottle/small_potion
+	category = list("initial", "Medical")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE | DEPARTMENTAL_FLAG_MEDICAL
+
+/datum/design/vial
+	name = "Potion Vial"
+	id = "vial"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/glass = 100)
+	build_path = /obj/item/reagent_containers/cup/bottle/vial
+	category = list("initial", "Medical")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE | DEPARTMENTAL_FLAG_MEDICAL

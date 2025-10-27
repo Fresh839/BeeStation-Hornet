@@ -106,6 +106,7 @@
 
 /atom/movable/screen/holoparasite
 	icon = 'icons/mob/holoparasite.dmi'
+	mouse_over_pointer = MOUSE_HAND_POINTER
 	var/mob/living/simple_animal/hostile/holoparasite/owner
 	var/can_toggle = FALSE
 	var/last_params
@@ -152,6 +153,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/atom/movable/screen/holoparasite)
 	return ..()
 
 /atom/movable/screen/holoparasite/MouseEntered(location, control, params)
+	..()
 	if(QDELETED(src))
 		return
 	if(usr == owner)

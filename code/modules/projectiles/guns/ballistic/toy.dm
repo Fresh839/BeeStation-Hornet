@@ -15,6 +15,7 @@
 	weapon_weight = WEAPON_LIGHT
 	burst_size = 3
 	fire_delay = 3 // Slightly worse than the actual sabre
+	custom_price = 75
 
 /obj/item/gun/ballistic/automatic/toy/update_icon()
 	. = ..()
@@ -69,11 +70,6 @@
 	. = ..()
 	add_overlay("[icon_state]_toy")
 
-/obj/item/gun/ballistic/shotgun/toy/process_chamber(empty_chamber = 0)
-	..()
-	if(chambered && !chambered.BB)
-		qdel(chambered)
-
 /obj/item/gun/ballistic/shotgun/toy/unrestricted
 	pin = /obj/item/firing_pin
 
@@ -89,6 +85,7 @@
 	fire_sound = 'sound/items/syringeproj.ogg'
 	slot_flags = ITEM_SLOT_BELT
 	w_class = WEIGHT_CLASS_SMALL
+	custom_price = 75
 
 /obj/item/gun/ballistic/automatic/c20r/toy //This is the syndicate variant with syndicate firing pin and riot darts.
 	name = "donksoft SMG"

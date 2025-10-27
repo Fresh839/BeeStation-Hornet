@@ -35,6 +35,8 @@ GLOBAL_LIST_INIT(valid_keys, list(
 ))
 
 /proc/input_sanity_check(client/C, key)
+	if(!C?.logged_in || !C.prefs) // no keybinds for you
+		return TRUE
 	if(GLOB.valid_keys[key])
 		return FALSE
 
@@ -92,8 +94,9 @@ GLOBAL_LIST_INIT(valid_keys, list(
 		if(kb.can_use(src) && kb.down(src))
 			break
 
-	holder?.key_down(_key, src)  //full_key is not necessary here, _key is enough
-	mob.focus?.key_down(_key, src) //same as above
+	holder?.key_down(_key, src, full_key)  //full_key is not necessary here, _key is enough
+	mob.focus?.key_down(_key, src, full_key) //same as above
+	mob.update_mouse_pointer()
 
 /client/verb/keyUp(_key as text)
 	set instant = TRUE
@@ -125,3 +128,4 @@ GLOBAL_LIST_INIT(valid_keys, list(
 
 	holder?.key_up(_key, src)
 	mob.focus?.key_up(_key, src)
+	mob.update_mouse_pointer()

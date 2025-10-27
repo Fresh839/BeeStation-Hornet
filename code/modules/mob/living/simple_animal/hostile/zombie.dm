@@ -4,7 +4,7 @@
 	icon = 'icons/mob/simple_human.dmi'
 	icon_state = "zombie"
 	icon_living = "zombie"
-	mob_biotypes = list(MOB_ORGANIC, MOB_HUMANOID)
+	mob_biotypes = MOB_ORGANIC | MOB_HUMANOID
 	speak_chance = 0
 	stat_attack = HARD_CRIT //braains
 	maxHealth = 50
@@ -13,7 +13,7 @@
 	attack_verb_continuous = "bites"
 	attack_verb_simple = "bite"
 	attack_sound = 'sound/hallucinations/growl1.ogg'
-	a_intent = INTENT_HARM
+	combat_mode = TRUE
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	minbodytemp = 0
 	spacewalk = FALSE

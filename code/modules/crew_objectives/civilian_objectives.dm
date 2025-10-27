@@ -190,7 +190,7 @@
 	if(!owner?.current)
 		return FALSE
 	var/list/uniqueslips = list()
-	for(var/obj/item/modular_computer/tablet/pda/clown/PDA in owner.current.get_contents())
+	for(var/obj/item/modular_computer/tablet/pda/preset/clown/PDA in owner.current.get_contents())
 		for(var/H in PDA.slip_victims)
 			uniqueslips |= H
 	return length(uniqueslips) >= target_amount
@@ -233,7 +233,7 @@
 	jobs = JOB_NAME_MIME
 
 /datum/objective/crew/nothingreallymatterstome/check_completion()
-	return ..() || owner?.current?.check_contents_for(/obj/item/reagent_containers/food/drinks/bottle/bottleofnothing)
+	return ..() || owner?.current?.check_contents_for(/obj/item/reagent_containers/cup/glass/bottle/bottleofnothing)
 
 /datum/objective/crew/nullrod
 	explanation_text = "Don't lose your nullrod. You can still transform it into another item."

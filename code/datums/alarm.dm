@@ -58,6 +58,7 @@
 
 	our_area.active_alarms[alarm_type] += 1
 
+	SEND_SIGNAL(src, COMSIG_ALARM_TRIGGERED, alarm_type, our_area)
 	SEND_GLOBAL_SIGNAL(COMSIG_ALARM_FIRE(alarm_type), src, alarm_type, our_area, our_z_level, optional_camera)
 
 	return TRUE
@@ -90,6 +91,7 @@
 	if(!length(our_area.active_alarms))
 		our_area.active_alarms -= alarm_type
 
+	SEND_SIGNAL(src, COMSIG_ALARM_CLEARED, alarm_type, our_area)
 	SEND_GLOBAL_SIGNAL(COMSIG_ALARM_CLEAR(alarm_type), src, alarm_type, our_area)
 	return TRUE
 
@@ -144,7 +146,7 @@
 	var/list/cameras = source_area.cameras
 	if(optional_camera)
 		cameras = list(optional_camera) // This will cause harddels, so we need to clear manually
-		RegisterSignal(optional_camera, COMSIG_PARENT_QDELETING, PROC_REF(clear_camera_ref), override = TRUE) //It's just fine to override, cause we clear all refs in the proc
+		RegisterSignal(optional_camera, COMSIG_QDELETING, PROC_REF(clear_camera_ref), override = TRUE) //It's just fine to override, cause we clear all refs in the proc
 
 	//This does mean that only the first alarm of that camera type in the area will send a ping, but jesus what else can ya do
 	alarms_of_our_type[source_area.name] = list(source_area, cameras, list(handler))

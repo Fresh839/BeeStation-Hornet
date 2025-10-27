@@ -1,11 +1,7 @@
 
 //Here are the procs used to modify status effects of a mob.
-//The effects include: stun, knockdown, unconscious, sleeping, resting, jitteriness, dizziness, ear damage,
+//The effects include: stun, knockdown, unconscious, sleeping, resting, dizziness, ear damage,
 // eye damage, eye_blind, eye_blurry, druggy, TRAIT_BLIND trait, and TRAIT_NEARSIGHT trait.
-
-///Set the jitter of a mob
-/mob/proc/Jitter(amount)
-	jitteriness = max(jitteriness,amount,0)
 
 /**
   * Set the dizzyness of a mob to a passed in amount
@@ -74,7 +70,7 @@
 		clear_fullscreen("blind")
 		remove_client_colour(/datum/client_colour/monochrome/blind)
 		var/datum/component/blind_sense/B = GetComponent(/datum/component/blind_sense)
-		B?.RemoveComponent()
+		B?.ClearFromParent()
 
 /**
   * Make the mobs vision blurry

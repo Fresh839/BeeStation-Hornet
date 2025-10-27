@@ -60,7 +60,7 @@
 		CRASH("Metacoin amount adjusted before value initialized")
 	metabalance_cached = mc_count
 	if(ann)
-		to_chat(src, "<span class='rose bold'>Your new metacoin balance is [mc_count]!</span>")
+		to_chat(src, span_rosebold("Your new metacoin balance is [mc_count]!"))
 	INVOKE_ASYNC(src, PROC_REF(db_set_metabalance), mc_count)
 
 /// Increases metabalance in the local cache, then invokes a database update.
@@ -70,16 +70,17 @@
 /client/proc/inc_metabalance(mc_count, ann=TRUE, reason=null)
 	SHOULD_NOT_SLEEP(TRUE)
 	if(mc_count >= 0 && !CONFIG_GET(flag/grant_metacurrency))
-		return
+		return FALSE
 	if(metabalance_cached == null)
 		CRASH("Metacoin amount adjusted before value initialized")
 	metabalance_cached += mc_count
 	if(ann)
 		if(reason)
-			to_chat(src, "<span class='rose bold'>[abs(mc_count)] [CONFIG_GET(string/metacurrency_name)]\s have been [mc_count >= 0 ? "deposited to" : "withdrawn from"] your account! Reason: [reason]</span>")
+			to_chat(src, span_rosebold("[abs(mc_count)] [CONFIG_GET(string/metacurrency_name)]\s have been [mc_count >= 0 ? "deposited to" : "withdrawn from"] your account! Reason: [reason]"))
 		else
-			to_chat(src, "<span class='rose bold'>[abs(mc_count)] [CONFIG_GET(string/metacurrency_name)]\s have been [mc_count >= 0 ? "deposited to" : "withdrawn from"] your account!</span>")
+			to_chat(src, span_rosebold("[abs(mc_count)] [CONFIG_GET(string/metacurrency_name)]\s have been [mc_count >= 0 ? "deposited to" : "withdrawn from"] your account!"))
 	INVOKE_ASYNC(src, PROC_REF(db_inc_metabalance), mc_count)
+	return TRUE
 
 /client/proc/db_inc_metabalance(mc_count)
 	var/datum/db_query/query_set_metacoins = SSdbcore.NewQuery(

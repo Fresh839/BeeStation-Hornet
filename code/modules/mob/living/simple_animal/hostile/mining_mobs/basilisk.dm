@@ -8,7 +8,7 @@
 	icon_aggro = "Basilisk_alert"
 	icon_dead = "Basilisk_dead"
 	icon_gib = "syndicate_gib"
-	mob_biotypes = list(MOB_ORGANIC, MOB_BEAST)
+	mob_biotypes = MOB_ORGANIC | MOB_BEAST
 	move_to_delay = 20
 	projectiletype = /obj/projectile/temp/basilisk
 	projectilesound = 'sound/weapons/pierce.ogg'
@@ -24,7 +24,7 @@
 	melee_damage = 12
 	attack_verb_continuous = "bites into"
 	attack_verb_simple = "bite into"
-	a_intent = INTENT_HARM
+	combat_mode = TRUE
 	speak_emote = list("chitters")
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	vision_range = 2
@@ -75,7 +75,7 @@
 	melee_damage = 15
 	attack_verb_continuous = "impales"
 	attack_verb_simple = "impale"
-	a_intent = INTENT_HARM
+	combat_mode = TRUE
 	speak_emote = list("telepathically cries")
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	stat_attack = HARD_CRIT

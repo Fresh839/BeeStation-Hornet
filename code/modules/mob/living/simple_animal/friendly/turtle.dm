@@ -18,13 +18,12 @@
 	response_disarm_simple = "gently push aside"
 	response_harm_continuous = "kicks"
 	response_harm_simple = "kick"
-	mob_biotypes = list(MOB_ORGANIC, MOB_BEAST)
+	mob_biotypes = MOB_ORGANIC | MOB_BEAST
 	gold_core_spawnable = NO_SPAWN
 	melee_damage = 0.5
 	health = 2500
 	maxHealth = 2500
 	speed = 4
-	glide_size = 2
 	can_be_held = TRUE
 	chat_color = "#E7D26F"
 

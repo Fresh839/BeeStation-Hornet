@@ -120,6 +120,9 @@
 		else
 			return null
 
+///Returns a single dir rotated by x degrees clockwise, adhering to the cardinal directions.
+#define turn_cardinal(dir, rotation) ( angle2dir_cardinal ( dir2angle(dir) + rotation ) )
+
 /// Returns the angle in english
 /proc/angle2text(degree)
 	return dir2text(angle2dir(degree))
@@ -463,7 +466,7 @@ It's only a proc because it's used in more than one place
 
 Takes a string and a datum. The string is well, obviously the string being checked. The datum is used as a source for var names, to check validity. Otherwise every single word could technically be a variable!
 */
-/proc/string2listofvars(var/t_string, var/datum/var_source)
+/proc/string2listofvars(t_string, datum/var_source)
 	if(!t_string || !var_source)
 		return list()
 

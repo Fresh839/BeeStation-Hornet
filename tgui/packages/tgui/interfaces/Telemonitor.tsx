@@ -1,5 +1,12 @@
 import { useBackend } from '../backend';
-import { Input, Section, Stack, ProgressBar, Button, Flex } from '../components';
+import {
+  Button,
+  Flex,
+  Input,
+  ProgressBar,
+  Section,
+  Stack,
+} from '../components';
 import { Window } from '../layouts';
 type Tdata = {
   network_id: string;
@@ -14,8 +21,8 @@ type Tdata = {
     overheated: boolean; // true/false
   }[];
 };
-export const Telemonitor = (props, context) => {
-  const { act, data } = useBackend<Tdata>(context);
+export const Telemonitor = (props) => {
+  const { act, data } = useBackend<Tdata>();
   const isOnline = function (server) {
     return Math.floor((data.current_time - server.last_update) / 10) < 10;
   };
@@ -40,9 +47,9 @@ export const Telemonitor = (props, context) => {
           <Flex direction="column" align="center" fontSize="15px">
             <Flex.Item fontSize="20px">
               Searching for servers
-              <span class="loading-one">.</span>
-              <span class="loading-two">.</span>
-              <span class="loading-three">.</span>
+              <span className="loading-one">.</span>
+              <span className="loading-two">.</span>
+              <span className="loading-three">.</span>
             </Flex.Item>
           </Flex>
         ) : (
@@ -53,11 +60,19 @@ export const Telemonitor = (props, context) => {
                   title={`${server.name} (${server.sender_id})`}
                   buttons={
                     <Button
-                      color={isOnline(server) && !server.overheated ? 'good' : 'bad'}
-                      tooltip={`${Math.floor((data.current_time - server.last_update) / 10)}s since last update`}>
-                      {isOnline(server) ? (server.overheated ? 'OVERHEATED' : 'ONLINE') : 'OFFLINE'}
+                      color={
+                        isOnline(server) && !server.overheated ? 'good' : 'bad'
+                      }
+                      tooltip={`${Math.floor((data.current_time - server.last_update) / 10)}s since last update`}
+                    >
+                      {isOnline(server)
+                        ? server.overheated
+                          ? 'OVERHEATED'
+                          : 'ONLINE'
+                        : 'OFFLINE'}
                     </Button>
-                  }>
+                  }
+                >
                   Efficiency:{' '}
                   <ProgressBar
                     ranges={{

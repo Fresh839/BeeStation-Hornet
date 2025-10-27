@@ -20,14 +20,14 @@
 	subtype_list = subtypesof(subtype)
 	src.series_name = series_name
 	var/atom/attached = target
-	RegisterSignal(attached, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
+	RegisterSignal(attached, COMSIG_ATOM_EXAMINE, PROC_REF(on_examine))
 
 /datum/element/series/Detach(datum/target)
 	. = ..()
-	UnregisterSignal(target, COMSIG_PARENT_EXAMINE)
+	UnregisterSignal(target, COMSIG_ATOM_EXAMINE)
 
 ///signal called examining
 /datum/element/series/proc/on_examine(datum/target, mob/user, list/examine_list)
 	var/series_number = subtype_list.Find(target.type)
-	examine_list += "<span class='boldnotice'>[target] is part of the \"[series_name]\" series!</span>"
-	examine_list += "<span class='notice'>Collect them all: [series_number]/[length(subtype_list)].</span>"
+	examine_list += span_boldnotice("[target] is part of the \"[series_name]\" series!")
+	examine_list += span_notice("Collect them all: [series_number]/[length(subtype_list)].")

@@ -1,7 +1,6 @@
 /datum/species/human
 	name = "\improper Human"
 	id = SPECIES_HUMAN
-	default_color = "FFFFFF"
 	species_traits = list(EYECOLOR,HAIR,FACEHAIR,LIPS)
 	mutant_bodyparts = list("body_size" = "Normal")
 	use_skintones = 1
@@ -42,6 +41,9 @@
 
 /datum/species/human/get_sniff_sound(mob/living/carbon/user)
 	return SPECIES_DEFAULT_SNIFF_SOUND(user)
+
+/datum/species/human/get_giggle_sound(mob/living/carbon/user)
+	return SPECIES_DEFAULT_GIGGLE_SOUND(user)
 
 /datum/species/human/prepare_human_for_preview(mob/living/carbon/human/human)
 	human.hair_style = "Business Hair"

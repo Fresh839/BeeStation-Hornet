@@ -9,6 +9,7 @@
 	ammo_x_offset = 3
 	weapon_weight = WEAPON_MEDIUM
 	dual_wield_spread = 60
+	custom_price = 300
 
 /obj/item/gun/energy/e_gun/add_seclight_point()
 	AddComponent(/datum/component/seclite_attachable, \
@@ -23,7 +24,7 @@
 	icon_state = "mini"
 	item_state = "gun"
 	w_class = WEIGHT_CLASS_SMALL
-	gun_charge = 600
+	gun_charge = 6000 WATT
 	ammo_x_offset = 2
 	charge_sections = 3
 	weapon_weight = WEAPON_LIGHT
@@ -62,7 +63,7 @@
 /obj/item/gun/energy/e_gun/hos
 	name = "\improper X-01 MultiPhase Energy Gun"
 	desc = "This is an expensive, modern recreation of an antique laser gun. This gun has several unique firemodes, but lacks the ability to recharge over time."
-	gun_charge = 1200
+	gun_charge = 12000 WATT
 	icon_state = "hoslaser"
 	w_class = WEIGHT_CLASS_LARGE
 	force = 10
@@ -108,8 +109,8 @@
 	item_state = "turretlaser"
 	slot_flags = null
 	w_class = WEIGHT_CLASS_HUGE
-	gun_charge = 10000
-	ammo_type = list(/obj/item/ammo_casing/energy/electrode, /obj/item/ammo_casing/energy/laser)
+	gun_charge = 100 KILOWATT
+	ammo_type = list(/obj/item/ammo_casing/energy/electrode/turret, /obj/item/ammo_casing/energy/laser)
 	weapon_weight = WEAPON_HEAVY
 	trigger_guard = TRIGGER_GUARD_NONE
 	ammo_x_offset = 2
@@ -139,7 +140,7 @@
 		fail_tick -= delta_time * 0.5
 	..()
 
-/obj/item/gun/energy/e_gun/nuclear/shoot_live_shot(mob/living/user, pointblank = 0, atom/pbtarget = null, message = 1)
+/obj/item/gun/energy/e_gun/nuclear/after_live_shot_fired(mob/living/user, pointblank = 0, atom/pbtarget = null, message = 1)
 	failcheck()
 	update_icon()
 	..()
@@ -151,12 +152,12 @@
 			if(0 to 200)
 				fail_tick += (2*(fail_chance))
 				M.rad_act(40)
-				to_chat(M, "<span class='userdanger'>Your [name] feels warmer.</span>")
+				to_chat(M, span_userdanger("Your [name] feels warmer."))
 			if(201 to INFINITY)
 				SSobj.processing.Remove(src)
 				M.rad_act(80)
 				reactor_overloaded = TRUE
-				to_chat(M, "<span class='userdanger'>Your [name]'s reactor overloads!</span>")
+				to_chat(M, span_userdanger("Your [name]'s reactor overloads!"))
 
 /obj/item/gun/energy/e_gun/nuclear/emp_act(severity)
 	. = ..()

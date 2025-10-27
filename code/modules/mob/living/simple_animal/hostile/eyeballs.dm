@@ -7,7 +7,7 @@
 	icon_living = "eyeball"
 	icon_gib = ""
 	gender = NEUTER
-	mob_biotypes = list(MOB_ORGANIC)
+	mob_biotypes = MOB_ORGANIC
 	response_help_continuous = "pets"
 	response_help_simple = "pet"
 	response_disarm_continuous = "gently pushes aside"
@@ -25,6 +25,6 @@
 	attack_sound = 'sound/weapons/pierce.ogg'
 	is_flying_animal = TRUE
 
-	faction = list("spooky")
+	faction = list(FACTION_SPOOKY)
 	del_on_death = TRUE
 	random_color = FALSE

@@ -5,8 +5,8 @@
 	name = "Split Personality"
 	desc = "Patient's brain is split into two personalities, which randomly switch control of the body."
 	scan_desc = "complete lobe separation"
-	gain_text = "<span class='warning'>You feel like your mind was split in two.</span>"
-	lose_text = "<span class='notice'>You feel alone again.</span>"
+	gain_text = span_warning("You feel like your mind was split in two.")
+	lose_text = span_notice("You feel alone again.")
 	var/current_controller = OWNER
 	var/initialized = FALSE //to prevent personalities deleting themselves while we wait for ghosts
 	var/mob/living/split_personality/stranger_backseat //there's two so they can swap without overwriting
@@ -24,32 +24,47 @@
 
 /datum/brain_trauma/severe/split_personality/proc/make_backseats()
 	stranger_backseat = new(owner, src)
-	var/obj/effect/proc_holder/spell/targeted/personality_commune/stranger_spell = new(src)
-	stranger_backseat.AddSpell(stranger_spell)
+	var/datum/action/spell/personality_commune/stranger_spell = new(src)
+	stranger_spell.Grant(stranger_backseat)
 
 	owner_backseat = new(owner, src)
-	var/obj/effect/proc_holder/spell/targeted/personality_commune/owner_spell = new(src)
-	owner_backseat.AddSpell(owner_spell)
+	var/datum/action/spell/personality_commune/owner_spell = new(src)
+	owner_spell.Grant(owner_backseat)
 
 /datum/brain_trauma/severe/split_personality/proc/get_ghost()
 	set waitfor = FALSE
-	var/list/mob/dead/observer/candidates = poll_candidates_for_mob("Do you want to play as [owner]'s split personality?", ROLE_SPLIT_PERSONALITY, null, 7.5 SECONDS, stranger_backseat)
-	if(LAZYLEN(candidates))
-		var/mob/dead/observer/C = pick(candidates)
-		stranger_backseat.key = C.key
+
+	var/mob/dead/observer/candidate = SSpolling.poll_ghosts_for_target(
+		check_jobban = ROLE_SPLIT_PERSONALITY,
+		poll_time = 10 SECONDS,
+		checked_target = owner,
+		jump_target = owner,
+		role_name_text = "[owner]'s split personality",
+		alert_pic = owner,
+	)
+	if(candidate)
+		stranger_backseat.key = candidate.key
+
 		log_game("[key_name(stranger_backseat)] became [key_name(owner)]'s split personality.")
 		message_admins("[ADMIN_LOOKUPFLW(stranger_backseat)] became [ADMIN_LOOKUPFLW(owner)]'s split personality.")
 	else
 		qdel(src)
 
-/datum/brain_trauma/severe/split_personality/on_life()
+
+/datum/brain_trauma/severe/split_personality/on_life(delta_time, times_fired)
 	if(owner.stat == DEAD)
 		if(current_controller != OWNER)
 			switch_personalities(TRUE)
 		qdel(src)
-	else if(prob(3))
+	else if(DT_PROB(1.5, delta_time))
 		switch_personalities()
 	..()
+
+/datum/brain_trauma/severe/split_personality/on_death()
+	if(current_controller != OWNER)
+		switch_personalities(TRUE)
+	..()
+
 
 /datum/brain_trauma/severe/split_personality/on_lose()
 	if(current_controller != OWNER) //it would be funny to cure a guy only to be left with the other personality, but it seems too cruel
@@ -60,7 +75,7 @@
 
 
 /datum/brain_trauma/severe/split_personality/proc/switch_personalities(reset_to_owner = FALSE)
-	if(QDELETED(owner) || owner.stat == DEAD || QDELETED(stranger_backseat) || QDELETED(owner_backseat))
+	if(QDELETED(owner) || QDELETED(stranger_backseat) || QDELETED(owner_backseat))
 		return
 
 	var/mob/living/split_personality/current_backseat
@@ -76,8 +91,8 @@
 		return
 
 	log_game("[key_name(current_backseat)] assumed control of [key_name(owner)] due to [src]. (Original owner: [current_controller == OWNER ? owner.key : current_backseat.key])")
-	to_chat(owner, "<span class='userdanger'>You feel your control being taken away... your other personality is in charge now!</span>")
-	to_chat(current_backseat, "<span class='userdanger'>You manage to take control of your body!</span>")
+	to_chat(owner, span_userdanger("You feel your control being taken away... your other personality is in charge now!"))
+	to_chat(current_backseat, span_userdanger("You manage to take control of your body!"))
 
 	//Body to backseat
 
@@ -137,7 +152,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/mob/living/split_personality)
 		trauma = _trauma
 	return ..()
 
-/mob/living/split_personality/Life()
+/mob/living/split_personality/Life(delta_time = SSMOBS_DT, times_fired)
 	if(QDELETED(body))
 		qdel(src) //in case trauma deletion doesn't already do it
 
@@ -156,15 +171,15 @@ CREATION_TEST_IGNORE_SUBTYPES(/mob/living/split_personality)
 	. = ..()
 	if(!. || !client)
 		return FALSE
-	to_chat(src, "<span class='notice'>As a split personality, you cannot do anything but observe. However, you will eventually gain control of your body, switching places with the current personality.</span>")
-	to_chat(src, "<span class='warning'><b>Do not commit suicide or put the body in a deadly position. Behave like you care about it as much as the owner.</b></span>")
+	to_chat(src, span_notice("As a split personality, you cannot do anything but observe. However, you will eventually gain control of your body, switching places with the current personality."))
+	to_chat(src, span_warning("<b>Do not commit suicide or put the body in a deadly position. Behave like you care about it as much as the owner.</b>"))
 
-/mob/living/split_personality/say(message, bubble_type, var/list/spans = list(), sanitize = TRUE, datum/language/language = null, ignore_spam = FALSE, forced = null)
-	to_chat(src, "<span class='warning'>You cannot speak, your other self is controlling your body!</span>")
+/mob/living/split_personality/say(message, bubble_type, list/spans = list(), sanitize = TRUE, datum/language/language = null, ignore_spam = FALSE, forced = null)
+	to_chat(src, span_warning("You cannot speak, your other self is controlling your body!"))
 	return FALSE
 
 /mob/living/split_personality/emote(act, m_type = null, message = null, intentional = FALSE)
-	return
+	return FALSE
 
 ///////////////BRAINWASHING////////////////////
 
@@ -173,7 +188,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/mob/living/split_personality)
 	desc = "Patient's brain is split into two personalities, which randomly switch control of the body."
 	scan_desc = "complete lobe separation"
 	gain_text = ""
-	lose_text = "<span class='notice'>You are free of your brainwashing.</span>"
+	lose_text = span_notice("You are free of your brainwashing.")
 	can_gain = FALSE
 	var/codeword
 	var/objective
@@ -202,14 +217,21 @@ CREATION_TEST_IGNORE_SUBTYPES(/mob/living/split_personality)
 
 /datum/brain_trauma/severe/split_personality/brainwashing/get_ghost()
 	set waitfor = FALSE
-	var/list/mob/dead/observer/candidates = poll_candidates_for_mob("Do you want to play as [owner]'s brainwashed mind?", ROLE_TRAITOR, null, 7.5 SECONDS, stranger_backseat, ignore_category = FALSE)
-	if(LAZYLEN(candidates))
-		var/mob/dead/observer/C = pick(candidates)
-		stranger_backseat.key = C.key
+
+	var/mob/dead/observer/candidate = SSpolling.poll_ghosts_for_target(
+		check_jobban = ROLE_TRAITOR,
+		poll_time = 10 SECONDS,
+		jump_target = owner,
+		checked_target = owner,
+		role_name_text = "[owner]'s brainwashed mind",
+		alert_pic = owner,
+	)
+	if(candidate)
+		stranger_backseat.key = candidate.key
 	else
 		qdel(src)
 
-/datum/brain_trauma/severe/split_personality/brainwashing/on_life()
+/datum/brain_trauma/severe/split_personality/brainwashing/on_life(delta_time, times_fired)
 	return //no random switching
 
 /datum/brain_trauma/severe/split_personality/brainwashing/handle_hearing(datum/source, list/hearing_args)
@@ -218,7 +240,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/mob/living/split_personality)
 
 	var/message = hearing_args[HEARING_RAW_MESSAGE]
 	if(findtext(message, codeword))
-		hearing_args[HEARING_RAW_MESSAGE] = replacetext(message, codeword, "<span class='warning'>[codeword]</span>")
+		hearing_args[HEARING_RAW_MESSAGE] = replacetext(message, codeword, span_warning("[codeword]"))
 		addtimer(CALLBACK(src, TYPE_PROC_REF(/datum/brain_trauma/severe/split_personality, switch_personalities)), 10)
 
 /datum/brain_trauma/severe/split_personality/brainwashing/handle_speech(datum/source, list/speech_args)
@@ -235,10 +257,10 @@ CREATION_TEST_IGNORE_SUBTYPES(/mob/living/split_personality)
 	. = ..()
 	if(!. || !client)
 		return FALSE
-	to_chat(src, "<span class='notice'>As a brainwashed personality, you cannot do anything yet but observe. However, you may gain control of your body if you hear the special codeword, switching places with the current personality.</span>")
-	to_chat(src, "<span class='notice'>Your activation codeword is: <b>[codeword]</b></span>")
+	to_chat(src, span_notice("As a brainwashed personality, you cannot do anything yet but observe. However, you may gain control of your body if you hear the special codeword, switching places with the current personality."))
+	to_chat(src, span_notice("Your activation codeword is: <b>[codeword]</b>"))
 	if(objective)
-		to_chat(src, "<span class='notice'>Your master left you an objective: <b>[objective]</b>. Follow it at all costs when in control.</span>")
+		to_chat(src, span_notice("Your master left you an objective: <b>[objective]</b>. Follow it at all costs when in control."))
 
 #undef OWNER
 #undef STRANGER

@@ -37,13 +37,10 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 
 /datum/status_effect/bleeding/merge(bleed_level)
 	src.bleed_rate = src.bleed_rate + max(min(bleed_level * bleed_level, sqrt(bleed_level)) / max(src.bleed_rate, 1), bleed_level - src.bleed_rate)
-	update_icon()
 
 /datum/status_effect/bleeding/on_creation(mob/living/new_owner, bleed_rate)
-	. = ..()
-	if (.)
-		src.bleed_rate = bleed_rate
-		linked_alert.maptext = MAPTEXT(owner.get_bleed_rate_string())
+	src.bleed_rate = bleed_rate
+	return ..()
 
 /datum/status_effect/bleeding/tick()
 	if (HAS_TRAIT(owner, TRAIT_NO_BLOOD))
@@ -60,8 +57,6 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 	// Non-humans stop bleeding a lot quicker, even if it is not a minor cut
 	if (!ishuman(owner))
 		bleed_rate -= BLEED_HEAL_RATE_MINOR * 4 * bleed_heal_multiplier
-	// Make sure to update our icon
-	update_icon()
 	// Set the rate at which we process, so we bleed more on the ground when heavy bleeding
 	tick_interval = bleed_rate <= BLEED_RATE_MINOR ? 1 SECONDS : 0.2 SECONDS
 	// Reduce the actual rate of bleeding
@@ -84,7 +79,10 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 	// Actually do the bleeding
 	owner.bleed(min(MAX_BLEED_RATE, final_bleed_rate))
 
-/datum/status_effect/bleeding/proc/update_icon()
+/datum/status_effect/bleeding/update_icon()
+	if(QDELETED(owner))
+		stack_trace("Tried to update bleeding icon [src] on deleted mob")
+		return
 	// The actual rate of bleeding, can be reduced by holding wounds
 	// Calculate the message to show to the user
 	if (HAS_TRAIT(owner, TRAIT_BLEED_HELD))
@@ -124,6 +122,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 	name = "Bleeding"
 	desc = "You are bleeding, find something to bandage the wound or you will die."
 	icon_state = "bleed"
+	clickable_glow = TRUE
 
 /atom/movable/screen/alert/status_effect/bleeding/Click(location, control, params)
 	var/mob/living/carbon/human/human = usr
@@ -137,7 +136,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 /mob/living/carbon/proc/is_bandaged()
 	if (HAS_TRAIT(src, TRAIT_NO_BLOOD))
 		return FALSE
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return FALSE
 	return bleed.bandaged_bleeding > 0
@@ -145,37 +144,41 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 /mob/living/carbon/proc/is_bleeding()
 	if (HAS_TRAIT(src, TRAIT_NO_BLOOD))
 		return FALSE
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return FALSE
 	return bleed.bleed_rate > 0
 
-/mob/living/carbon/proc/add_bleeding(bleed_level)
+/mob/living/carbon/proc/add_bleeding(bleed_level, sound_effect = TRUE)
 	if (HAS_TRAIT(src, TRAIT_NO_BLOOD))
 		return
-	playsound(src, 'sound/surgery/blood_wound.ogg', 80, vary = TRUE)
-	apply_status_effect(dna?.species?.bleed_effect || STATUS_EFFECT_BLEED, bleed_level)
+	if(sound_effect)
+		playsound(src, 'sound/surgery/blood_wound.ogg', 80, vary = TRUE)
+	apply_status_effect(dna?.species?.bleed_effect || /datum/status_effect/bleeding, bleed_level)
 	if (bleed_level >= BLEED_DEEP_WOUND)
 		blur_eyes(1)
-		to_chat(src, "<span class='user_danger'>Blood starts rushing out of the open wound!</span>")
+		var/datum/reagent/blood = get_blood_id() //Not every race has "BLOOD" rushing from the wound
+		to_chat(src, "[span_userdanger("[blood.name] starts rushing out of the open wound!")]")
 	if(bleed_level >= BLEED_CUT)
 		add_splatter_floor(src.loc)
 	else
 		add_splatter_floor(src.loc, 1)
 
 /mob/living/carbon/human/add_bleeding(bleed_level)
-	if (NOBLOOD in dna.species.species_traits)
+	if(HAS_TRAIT(src, TRAIT_NOBLOOD))
 		return
 	..()
 
 /mob/living/carbon/proc/get_bleed_intensity()
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return 0
 	return 3 ** bleed.bleed_rate
 
 /mob/living/carbon/proc/get_bleed_rate()
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
+	if(!bleed)
+		return FALSE //bleed?.bleed_rate runtimes when has_status_effect returns FALSE
 	return bleed?.bleed_rate
 
 /// Can we heal bleeding using a welding tool?
@@ -187,7 +190,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 	return "0.0/s"
 
 /mob/living/carbon/get_bleed_rate_string()
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return "0.0/s"
 	var/final_bleed_rate = bleed.bleed_rate
@@ -201,12 +204,12 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 	return "[final_bleed_rate]/s"
 
 /mob/living/carbon/proc/cauterise_wounds(amount = INFINITY)
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return FALSE
 	bleed.bleed_rate -= amount
 	if (bleed.bleed_rate <= 0)
-		remove_status_effect(STATUS_EFFECT_BLEED)
+		remove_status_effect(/datum/status_effect/bleeding)
 	return TRUE
 
 /mob/living/carbon/proc/hold_wounds()
@@ -227,7 +230,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 	var/obj/item/offhand/bleeding_suppress/supressed_thing = new()
 	put_in_active_hand(supressed_thing)
 	balloon_alert(src, "You apply pressure to your wounds...")
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return
 	bleed.update_icon()
@@ -239,13 +242,13 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 		located = TRUE
 	if (located)
 		balloon_alert(src, "You stop applying pressure to your wounds...")
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return
 	bleed.update_icon()
 
 /mob/living/carbon/proc/suppress_bloodloss(amount)
-	var/datum/status_effect/bleeding/bleed = has_status_effect(STATUS_EFFECT_BLEED)
+	var/datum/status_effect/bleeding/bleed = has_status_effect(/datum/status_effect/bleeding)
 	if (!bleed)
 		return
 	var/reduced_amount = min(bleed.bleed_rate, amount)
@@ -264,9 +267,11 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 				adjustOxyLoss(round((BLOOD_VOLUME_NORMAL - blood_volume) * 0.02, 1))
 
 // Takes care blood loss and regeneration
-/mob/living/carbon/human/handle_blood()
+/mob/living/carbon/human/handle_blood(delta_time, times_fired)
+	if(mind && IS_VAMPIRE(src)) // vampires should not be affected by blood
+		return FALSE
 
-	if((NOBLOOD in dna.species.species_traits) || HAS_TRAIT(src, TRAIT_NO_BLOOD))
+	if(HAS_TRAIT(src, TRAIT_NOBLOOD) || HAS_TRAIT(src, TRAIT_NO_BLOOD))
 		cauterise_wounds()
 		return
 
@@ -287,8 +292,8 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 					nutrition_ratio = 1
 			if(satiety > 80)
 				nutrition_ratio *= 1.25
-			adjust_nutrition(-nutrition_ratio * HUNGER_FACTOR)
-			blood_volume = min(BLOOD_VOLUME_NORMAL, blood_volume + 0.5 * nutrition_ratio)
+			adjust_nutrition(-nutrition_ratio * HUNGER_FACTOR * delta_time)
+			blood_volume = min(blood_volume + (BLOOD_REGEN_FACTOR * nutrition_ratio * delta_time), BLOOD_VOLUME_NORMAL)
 
 		//Effects of bloodloss
 		var/word = pick("dizzy","woozy","faint")
@@ -303,7 +308,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 			switch(blood_volume)
 				if(BLOOD_VOLUME_SURVIVE to BLOOD_VOLUME_SAFE)
 					if(prob(3))
-						to_chat(src, "<span class='warning'>Your sensors indicate [pick("overheating", "thermal throttling", "coolant issues")].</span>")
+						to_chat(src, span_warning("Your sensors indicate [pick("overheating", "thermal throttling", "coolant issues")]."))
 				if(-INFINITY to BLOOD_VOLUME_SURVIVE)
 					desired_damage = getMaxHealth() * 2.0
 					// Rapidly die with no saving you
@@ -313,17 +318,20 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 			return
 		switch(blood_volume)
 			if(BLOOD_VOLUME_OKAY to BLOOD_VOLUME_SAFE)
-				if(prob(5))
-					to_chat(src, "<span class='warning'>You feel [word].</span>")
+				if(DT_PROB(2.5, delta_time))
+					to_chat(src, span_warning("You feel [word]."))
+				//adjustOxyLoss(round(0.005 * (BLOOD_VOLUME_NORMAL - blood_volume) * delta_time, 1))
 			if(BLOOD_VOLUME_BAD to BLOOD_VOLUME_OKAY)
-				if(prob(5))
+				//adjustOxyLoss(round(0.01 * (BLOOD_VOLUME_NORMAL - blood_volume) * delta_time, 1))
+				if(DT_PROB(2.5, delta_time))
 					blur_eyes(6)
-					to_chat(src, "<span class='warning'>You feel very [word].</span>")
+					to_chat(src, span_warning("You feel very [word]."))
 			if(BLOOD_VOLUME_SURVIVE to BLOOD_VOLUME_BAD)
-				if(prob(30))
+				//adjustOxyLoss(2.5 * delta_time)
+				if(DT_PROB(15, delta_time))
 					blur_eyes(6)
 					Unconscious(rand(3,6))
-					to_chat(src, "<span class='warning'>You feel extremely [word].</span>")
+					to_chat(src, span_warning("You feel extremely [word]."))
 			if(-INFINITY to BLOOD_VOLUME_SURVIVE)
 				desired_damage = getMaxHealth() * 2.0
 				// Rapidly die with no saving you
@@ -340,12 +348,12 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 		// As you get less bloodloss, you bleed slower
 		// See the top of this file for desmos lines
 		var/decrease_multiplier = BLEED_RATE_MULTIPLIER
-		var/obj/item/organ/heart/heart = getorganslot(ORGAN_SLOT_HEART)
+		var/obj/item/organ/heart/heart = get_organ_slot(ORGAN_SLOT_HEART)
 		if (!heart || !heart.beating)
 			decrease_multiplier = BLEED_RATE_MULTIPLIER_NO_HEART
 		var/blood_loss_amount = blood_volume - blood_volume * NUM_E ** (-(amt * decrease_multiplier)/BLOOD_VOLUME_NORMAL)
 		blood_volume = max(blood_volume - blood_loss_amount, 0)
-		if(isturf(src.loc) && prob(sqrt(blood_loss_amount)*BLOOD_DRIP_RATE_MOD)) //Blood loss still happens in locker, floor stays clean
+		if(isturf(src.loc) && !isgroundlessturf(src.loc) && prob(sqrt(blood_loss_amount)*BLOOD_DRIP_RATE_MOD)) //Blood loss still happens in locker, floor stays clean
 			if(blood_loss_amount >= 2)
 				add_splatter_floor(src.loc)
 			else
@@ -353,7 +361,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 
 /mob/living/carbon/human/bleed(amt)
 	amt *= physiology.bleed_mod
-	if(!(NOBLOOD in dna.species.species_traits))
+	if(!HAS_TRAIT(src, TRAIT_NOBLOOD))
 		..()
 
 /mob/living/proc/restore_blood()
@@ -370,16 +378,16 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 //Gets blood from mob to a container or other mob, preserving all data in it.
 /mob/living/proc/transfer_blood_to(atom/movable/AM, amount, forced)
 	if(!blood_volume || !AM.reagents)
-		return 0
+		return FALSE
 	if(blood_volume < BLOOD_VOLUME_BAD && !forced)
-		return 0
+		return FALSE
 
 	if(blood_volume < amount)
 		amount = blood_volume
 
 	var/blood_id = get_blood_id()
 	if(!blood_id)
-		return 0
+		return FALSE
 
 	blood_volume -= amount
 
@@ -395,15 +403,17 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 						if((D.spread_flags & DISEASE_SPREAD_SPECIAL) || (D.spread_flags & DISEASE_SPREAD_NON_CONTAGIOUS))
 							continue
 						C.ForceContractDisease(D)
-				if(!(blood_data["blood_type"] in get_safe_blood(C.dna.blood_type)))
+
+				var/datum/blood_type/blood_type = blood_data["blood_type"]
+				if(!blood_type || !(blood_type.type in C.dna.blood_type.compatible_types))
 					C.reagents.add_reagent(/datum/reagent/toxin, amount * 0.5)
-					return 1
+					return TRUE
 
 			C.blood_volume = min(C.blood_volume + round(amount, 0.1), BLOOD_VOLUME_MAXIMUM)
-			return 1
+			return TRUE
 
 	AM.reagents.add_reagent(blood_id, amount, blood_data, bodytemperature)
-	return 1
+	return TRUE
 
 
 /mob/living/proc/get_blood_data(blood_id)
@@ -461,32 +471,25 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 		return
 	if(dna.species.exotic_blood)
 		return dna.species.exotic_blood
-	else if((NOBLOOD in dna.species.species_traits))
+	else if(HAS_TRAIT(src, TRAIT_NOBLOOD))
 		return
 	return /datum/reagent/blood
 
 // This is has more potential uses, and is probably faster than the old proc.
-/proc/get_safe_blood(bloodtype)
-	. = list()
-	if(!bloodtype)
-		return
+/proc/random_blood_type()
+	return get_blood_type(pick(4;"O-", 36;"O+", 3;"A-", 28;"A+", 1;"B-", 20;"B+", 1;"AB-", 5;"AB+"))
 
-	var/static/list/bloodtypes_safe = list(
-		"A-" = list("A-", "O-"),
-		"A+" = list("A-", "A+", "O-", "O+"),
-		"B-" = list("B-", "O-"),
-		"B+" = list("B-", "B+", "O-", "O+"),
-		"AB-" = list("A-", "B-", "O-", "AB-"),
-		"AB+" = list("A-", "A+", "B-", "B+", "O-", "O+", "AB-", "AB+"),
-		"O-" = list("O-"),
-		"O+" = list("O-", "O+"),
-		"L" = list("L"),
-		"U" = list("A-", "A+", "B-", "B+", "O-", "O+", "AB-", "AB+", "L", "U")
-	)
+/proc/get_blood_type(type)
+	return GLOB.blood_types[type]
 
-	var/safe = bloodtypes_safe[bloodtype]
-	if(safe)
-		. = safe
+/proc/get_blood_dna_color(list/blood_dna)
+	var/blood_print = blood_dna[length(blood_dna)]
+	var/datum/blood_type/blood_type = blood_dna[blood_print]
+	if(!blood_type)
+		return COLOR_BLOOD
+	if(!blood_type.blood_color)
+		return COLOR_BLOOD
+	return blood_type.blood_color
 
 //to add a splatter of blood or other mob liquid.
 /mob/living/proc/add_splatter_floor(turf/T, small_drip)
@@ -508,7 +511,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 				drop.transfer_mob_blood_dna(src)
 				return
 			else
-				temp_blood_DNA = drop.return_blood_DNA() //we transfer the dna from the drip to the splatter
+				temp_blood_DNA = GET_ATOM_BLOOD_DNA(drop) //we transfer the dna from the drip to the splatter
 				qdel(drop)//the drip is replaced by a bigger splatter
 		else
 			drop = new(T, get_static_viruses())
@@ -516,7 +519,12 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 			return
 
 	// Find a blood decal or create a new one.
-	var/obj/effect/decal/cleanable/blood/B = locate() in T
+	var/obj/effect/decal/cleanable/blood/B
+	for (var/obj/effect/decal/cleanable/blood/candidate in T)
+		if (QDELETED(T))
+			continue
+		B = candidate
+		break
 	if(!B)
 		B = new /obj/effect/decal/cleanable/blood/splatter(T, get_static_viruses())
 	if(QDELETED(B)) //Give it up
@@ -527,7 +535,7 @@ bleedsuppress has been replaced for is_bandaged(). Note that is_bleeding() retur
 		B.add_blood_DNA(temp_blood_DNA)
 
 /mob/living/carbon/human/add_splatter_floor(turf/T, small_drip)
-	if(!(NOBLOOD in dna.species.species_traits))
+	if(!HAS_TRAIT(src, TRAIT_NOBLOOD))
 		..()
 
 /mob/living/carbon/alien/add_splatter_floor(turf/T, small_drip)

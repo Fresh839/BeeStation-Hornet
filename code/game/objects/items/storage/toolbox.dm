@@ -22,6 +22,7 @@
 	var/has_latches = TRUE
 	drop_sound = 'sound/items/handling/toolbox_drop.ogg'
 	pickup_sound =  'sound/items/handling/toolbox_pickup.ogg'
+	custom_price = 50
 
 /obj/item/storage/toolbox/Initialize(mapload)
 	. = ..()
@@ -32,6 +33,8 @@
 				latches = "triple_latch"
 	update_icon()
 
+	AddElement(/datum/element/falling_hazard, damage = force, hardhat_safety = TRUE, crushes = FALSE, impact_sound = hitsound)
+
 /obj/item/storage/toolbox/update_overlays()
 	. = ..()
 	if(has_latches)
@@ -39,7 +42,7 @@
 
 
 /obj/item/storage/toolbox/suicide_act(mob/living/user)
-	user.visible_message("<span class='suicide'>[user] robusts [user.p_them()]self with [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
+	user.visible_message(span_suicide("[user] robusts [user.p_them()]self with [src]! It looks like [user.p_theyre()] trying to commit suicide!"))
 	return BRUTELOSS
 
 /obj/item/storage/toolbox/emergency
@@ -162,11 +165,11 @@
 	force = 15
 	throwforce = 18
 	material_flags = NONE
+	trade_flags = TRADE_CONTRABAND
 
-/obj/item/storage/toolbox/syndicate/ComponentInitialize()
+/obj/item/storage/toolbox/syndicate/Initialize(mapload)
 	. = ..()
-	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.silent = TRUE
+	atom_storage.silent = TRUE
 
 /obj/item/storage/toolbox/syndicate/PopulateContents()
 	new /obj/item/screwdriver/nuke(src)
@@ -206,12 +209,11 @@
 	attack_verb_simple = list("robust")
 	material_flags = NONE
 
-/obj/item/storage/toolbox/brass/ComponentInitialize()
+/obj/item/storage/toolbox/brass/Initialize(mapload)
 	. = ..()
-	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.max_w_class = WEIGHT_CLASS_NORMAL
-	STR.max_combined_w_class = 28
-	STR.max_items = 28
+	atom_storage.max_specific_storage = WEIGHT_CLASS_NORMAL
+	atom_storage.max_total_storage = 28
+	atom_storage.max_slots = 28
 
 /obj/item/storage/toolbox/brass/prefilled/PopulateContents()
 	new /obj/item/screwdriver/brass(src)
@@ -232,11 +234,10 @@
 	w_class = WEIGHT_CLASS_GIGANTIC //Holds more than a regular toolbox!
 	material_flags = NONE
 
-/obj/item/storage/toolbox/artistic/ComponentInitialize()
+/obj/item/storage/toolbox/artistic/Initialize(mapload)
 	. = ..()
-	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.max_combined_w_class = 20
-	STR.max_items = 10
+	atom_storage.max_total_storage = 20
+	atom_storage.max_slots = 10
 
 /obj/item/storage/toolbox/artistic/PopulateContents()
 	new /obj/item/storage/crayons(src)
@@ -272,11 +273,10 @@
 	name = "ammo crate (.38)"
 	desc = "It contains a few boxes of bullets."
 
-/obj/item/storage/toolbox/ammo/c38/ComponentInitialize()
+/obj/item/storage/toolbox/ammo/c38/Initialize(mapload)
 	. = ..()
-	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.max_combined_w_class = 10
-	STR.max_items = 5
+	atom_storage.max_total_storage = 10
+	atom_storage.max_slots = 5
 
 /obj/item/storage/toolbox/ammo/c38/PopulateContents()
 	new /obj/item/ammo_box/c38/box(src)
@@ -301,7 +301,7 @@
 	if(!is_type_in_list(src, allowed_toolbox) && (type != /obj/item/storage/toolbox))
 		return
 	if(contents.len >= 1)
-		to_chat(user, "<span class='warning'>They won't fit in, as there is already stuff inside!</span>")
+		to_chat(user, span_warning("They won't fit in, as there is already stuff inside!"))
 		return
 	if(T.use(10))
 		var/obj/item/bot_assembly/floorbot/B = new
@@ -319,8 +319,8 @@
 				B.toolbox_color = "s"
 		user.put_in_hands(B)
 		B.update_icon()
-		to_chat(user, "<span class='notice'>You add the tiles into the empty [name]. They protrude from the top.</span>")
+		to_chat(user, span_notice("You add the tiles into the empty [name]. They protrude from the top."))
 		qdel(src)
 	else
-		to_chat(user, "<span class='warning'>You need 10 floor tiles to start building a floorbot!</span>")
+		to_chat(user, span_warning("You need 10 floor tiles to start building a floorbot!"))
 		return

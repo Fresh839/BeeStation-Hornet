@@ -61,8 +61,8 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 	else
 		return QDEL_HINT_LETMELIVE
 
-/obj/docking_port/has_gravity(turf/T)
-	return FALSE
+/obj/docking_port/has_gravity(turf/current_turf)
+	return TRUE
 
 /obj/docking_port/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1, attack_dir, armour_penetration = 0)
 	return
@@ -97,7 +97,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 		)
 
 //returns the dwidth, dheight, width, and height in that order of the union bounds of all shuttles relative to our shuttle.
-/obj/docking_port/proc/return_union_bounds(var/list/obj/docking_port/others)
+/obj/docking_port/proc/return_union_bounds(list/obj/docking_port/others)
 	var/list/coords =  return_union_coords(others, 0, 0, NORTH)
 	var/X0 = min(coords[1],coords[3]) //This will be the negative dwidth of the combined bounds
 	var/Y0 = min(coords[2],coords[4]) //This will be the negative dheight of the combined bounds
@@ -106,7 +106,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 	return list(-X0, -Y0, X1-X0+1,Y1-Y0+1)
 
 //Returns the the bounding box fully containing all provided docking ports
-/obj/docking_port/proc/return_union_coords(var/list/obj/docking_port/others, _x, _y, _dir)
+/obj/docking_port/proc/return_union_coords(list/obj/docking_port/others, _x, _y, _dir)
 	if(_dir == null)
 		_dir = dir
 	if(_x == null)
@@ -131,7 +131,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 		)
 
 //Returns the bounding box containing only the intersection of all provided docking ports
-/obj/docking_port/proc/return_intersect_coords(var/list/obj/docking_port/others, _x, _y, _dir)
+/obj/docking_port/proc/return_intersect_coords(list/obj/docking_port/others, _x, _y, _dir)
 	if(_dir == null)
 		_dir = dir
 	if(_x == null)
@@ -264,9 +264,8 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 	. = ..()
 
 /obj/docking_port/stationary/proc/load_roundstart()
-	DECLARE_ASYNC
 	if(json_key)
-		var/sid = SSmapping.config.shuttles[json_key]
+		var/sid = SSmapping.current_map.shuttles[json_key]
 		roundstart_template = SSmapping.shuttle_templates[sid]
 		if(!roundstart_template)
 			CRASH("json_key:[json_key] value \[[sid]\] resulted in a null shuttle template for [src]")
@@ -278,9 +277,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 			CRASH("Invalid path ([roundstart_template]) passed to docking port.")
 
 	if(roundstart_template)
-		var/datum/async_map_generator/shuttle_loader = SSshuttle.action_load(roundstart_template, src)
-		UNTIL(shuttle_loader.completed)
-	ASYNC_FINISH
+		SSshuttle.action_load(roundstart_template, src)
 
 /obj/docking_port/stationary/transit
 	name = "In Transit"
@@ -393,7 +390,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 /obj/docking_port/mobile/is_in_shuttle_bounds(atom/A)
 	return shuttle_areas[get_area(A)]
 
-/obj/docking_port/mobile/proc/add_turf(var/turf/T, var/area/shuttle/A)
+/obj/docking_port/mobile/proc/add_turf(turf/T, area/shuttle/A)
 	if(!shuttle_areas[A]) //Invalid area
 		return TRUE
 
@@ -434,7 +431,7 @@ CREATION_TEST_IGNORE_SUBTYPES(/obj/docking_port)
 	current_area.contents -= T
 	T.change_area(current_area, A)
 
-/obj/docking_port/mobile/proc/remove_turf(var/turf/T)
+/obj/docking_port/mobile/proc/remove_turf(turf/T)
 
 	var/area/shuttle/A = get_area(T)
 	var/area/shuttle/new_area = underlying_turf_area[T]

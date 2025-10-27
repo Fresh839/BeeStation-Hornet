@@ -1,8 +1,18 @@
 /atom/movable/screen/ghost
 	icon = 'icons/hud/screen_ghost.dmi'
+	mouse_over_pointer = MOUSE_HAND_POINTER
 
 /atom/movable/screen/ghost/MouseEntered()
+	..()
 	flick(icon_state + "_anim", src)
+
+/atom/movable/screen/ghost/observe
+	name = "Observe"
+	icon_state = "observe"
+
+/atom/movable/screen/ghost/observe/Click()
+	var/mob/dead/observer/G = usr
+	G.observe()
 
 /atom/movable/screen/ghost/jumptomob
 	name = "Jump to mob"
@@ -48,6 +58,22 @@
 	name = "Spawners Menu"
 	icon_state = "spawners_menu"
 
+/atom/movable/screen/ghost/respawn
+	name = "Respawn"
+	icon_state = "respawn"
+
+/atom/movable/screen/ghost/respawn/Click()
+	var/mob/dead/observer/G = usr
+	G.abandon_mob()
+
+/atom/movable/screen/ghost/respawn/update_icon_state(mob/dead/observer/mymob)
+	if(mymob)
+		if(mymob.respawn_available)
+			icon_state = "respawn_available"
+		else
+			icon_state = "respawn"
+	return ..()
+
 /atom/movable/screen/ghost/spawners_menu/Click()
 	var/mob/dead/observer/G = usr
 	G.open_spawners_menu()
@@ -55,6 +81,11 @@
 /datum/hud/ghost/New(mob/owner)
 	..()
 	var/atom/movable/screen/using
+
+	using = new /atom/movable/screen/ghost/observe()
+	using.screen_loc = ui_ghost_observe
+	using.hud = src
+	static_inventory += using
 
 	using = new /atom/movable/screen/ghost/jumptomob()
 	using.screen_loc = ui_ghost_jumptomob
@@ -68,6 +99,11 @@
 
 	using = new /atom/movable/screen/ghost/reenter_corpse()
 	using.screen_loc = ui_ghost_reenter_corpse
+	using.hud = src
+	static_inventory += using
+
+	using = new /atom/movable/screen/ghost/respawn()
+	using.screen_loc = ui_ghost_respawn
 	using.hud = src
 	static_inventory += using
 
@@ -103,7 +139,7 @@
 	if(!.)
 		return
 	var/mob/screenmob = viewmob || mymob
-	if(screenmob.client.prefs.read_player_preference(/datum/preference/toggle/ghost_hud))
+	if(isnull(screenmob.client.prefs) || screenmob.client.prefs.read_player_preference(/datum/preference/toggle/ghost_hud))
 		screenmob.client.screen += static_inventory
 	else
 		screenmob.client.screen -= static_inventory

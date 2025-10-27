@@ -6,7 +6,7 @@
 /turf/closed/wall/mineral/abductor,
 /area/shuttle/escape)
 "ac" = (
-/obj/effect/spawner/structure/window/plastitanium,
+/obj/effect/spawner/structure/window/reinforced/plasma/plastitanium,
 /turf/open/floor/plating/abductor,
 /area/shuttle/escape)
 "ad" = (
@@ -67,7 +67,7 @@
 "an" = (
 /obj/structure/table/abductor,
 /obj/machinery/recharger,
-/obj/item/abductor/baton{
+/obj/item/melee/baton/abductor{
 	desc = "Even aliens can see the use of a good old fashioned beating stick."
 	},
 /turf/open/floor/plating/abductor,
@@ -284,7 +284,7 @@
 /turf/open/floor/plating/abductor,
 /area/shuttle/escape)
 "qB" = (
-/obj/effect/spawner/structure/window/plastitanium,
+/obj/effect/spawner/structure/window/reinforced/plasma/plastitanium,
 /obj/structure/fans/tiny/invisible,
 /turf/open/floor/plating/abductor,
 /area/shuttle/escape)

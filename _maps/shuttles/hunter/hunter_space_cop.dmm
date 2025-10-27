@@ -143,9 +143,7 @@
 /turf/open/floor/iron,
 /area/shuttle/hunter)
 "dN" = (
-/obj/structure/window/reinforced{
-	dir = 8
-	},
+/obj/structure/window/reinforced/spawner/directional/west,
 /obj/structure/closet/secure_closet{
 	icon_state = "sec";
 	name = "equipment locker";
@@ -232,7 +230,7 @@
 	pixel_x = 8;
 	pixel_y = 8
 	},
-/obj/item/reagent_containers/food/drinks/mug{
+/obj/item/reagent_containers/cup/glass/mug{
 	pixel_x = 9;
 	pixel_y = -2
 	},
@@ -267,7 +265,7 @@
 /obj/structure/cable/yellow{
 	icon_state = "1-2"
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden{
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden{
 	dir = 9
 	},
 /turf/open/floor/plating/rust,
@@ -389,7 +387,7 @@
 	pixel_x = -7;
 	pixel_y = -7
 	},
-/obj/item/reagent_containers/food/drinks/mug{
+/obj/item/reagent_containers/cup/glass/mug{
 	pixel_x = -7;
 	pixel_y = 4
 	},
@@ -420,7 +418,7 @@
 	icon_state = "1-2"
 	},
 /obj/effect/decal/cleanable/oil,
-/obj/machinery/atmospherics/pipe/simple/purple/hidden,
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden,
 /turf/open/floor/plating,
 /area/shuttle/hunter)
 "kT" = (
@@ -452,7 +450,7 @@
 	pixel_x = -7;
 	pixel_y = 3
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden{
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden{
 	dir = 8
 	},
 /turf/open/floor/engine,
@@ -462,7 +460,7 @@
 /obj/structure/cable/yellow{
 	icon_state = "1-2"
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden{
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden{
 	dir = 10
 	},
 /turf/open/floor/plating,
@@ -520,7 +518,7 @@
 /turf/open/floor/iron,
 /area/shuttle/hunter)
 "nB" = (
-/obj/effect/spawner/structure/window/shuttle,
+/obj/effect/spawner/structure/window/reinforced/shuttle,
 /obj/machinery/door/poddoor/preopen{
 	id = "hunter_police_bridge";
 	name = "Bridge View Blast Door"
@@ -559,7 +557,7 @@
 /obj/structure/cable/yellow{
 	icon_state = "0-2"
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden{
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden{
 	dir = 10
 	},
 /turf/open/floor/iron/tech/grid,
@@ -604,7 +602,7 @@
 /obj/item/kirbyplants{
 	icon_state = "plant-21"
 	},
-/obj/machinery/atmospherics/pipe/manifold4w/purple/hidden,
+/obj/machinery/atmospherics/pipe/smart/manifold4w/purple/hidden,
 /turf/open/floor/engine,
 /area/shuttle/hunter)
 "pY" = (
@@ -626,7 +624,7 @@
 	pixel_x = -6;
 	pixel_y = 5
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden{
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden{
 	dir = 9
 	},
 /turf/open/floor/iron/techmaint,
@@ -649,8 +647,7 @@
 /obj/effect/turf_decal/siding/thinplating/dark{
 	dir = 9
 	},
-/obj/structure/window/reinforced{
-	dir = 8;
+/obj/structure/window/reinforced/spawner/directional/west{
 	pixel_x = -2
 	},
 /turf/open/floor/iron/tech/grid,
@@ -706,9 +703,7 @@
 /turf/open/floor/iron/dark,
 /area/shuttle/hunter)
 "uu" = (
-/obj/structure/window/reinforced{
-	dir = 4
-	},
+/obj/structure/window/reinforced/spawner/directional/east,
 /obj/machinery/atmospherics/components/unary/shuttle/heater{
 	dir = 4
 	},
@@ -760,7 +755,7 @@
 	dir = 4
 	},
 /turf/open/floor/wood{
-	icon_state = "wood-broken5"
+	broken = 1
 	},
 /area/shuttle/hunter)
 "ws" = (
@@ -825,7 +820,7 @@
 /turf/open/floor/iron/yellowsiding,
 /area/shuttle/hunter)
 "Be" = (
-/obj/effect/spawner/structure/window/shuttle,
+/obj/effect/spawner/structure/window/reinforced/shuttle,
 /obj/machinery/door/poddoor/preopen{
 	id = "hunter_police_windows"
 	},
@@ -954,7 +949,7 @@
 /obj/structure/cable/yellow{
 	icon_state = "1-4"
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden,
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden,
 /turf/open/floor/iron/techmaint,
 /area/shuttle/hunter)
 "Gl" = (
@@ -1022,7 +1017,7 @@
 /obj/structure/cable/yellow{
 	icon_state = "1-2"
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden,
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden,
 /turf/open/floor/iron/stairs,
 /area/shuttle/hunter)
 "Jh" = (
@@ -1220,13 +1215,13 @@
 /obj/effect/decal/cleanable/oil{
 	pixel_y = 11
 	},
-/obj/item/reagent_containers/glass/bucket{
+/obj/item/reagent_containers/cup/bucket{
 	pixel_x = -8;
 	pixel_y = 2
 	},
 /obj/effect/decal/cleanable/dirt/dust,
 /obj/effect/decal/cleanable/greenglow,
-/obj/machinery/atmospherics/pipe/manifold4w/purple/hidden,
+/obj/machinery/atmospherics/pipe/smart/manifold4w/purple/hidden,
 /turf/open/floor/engine,
 /area/shuttle/hunter)
 "TA" = (
@@ -1243,7 +1238,7 @@
 	pixel_x = -8;
 	pixel_y = 6
 	},
-/obj/machinery/atmospherics/pipe/manifold/purple/hidden{
+/obj/machinery/atmospherics/pipe/smart/manifold/purple/hidden{
 	dir = 1
 	},
 /turf/open/floor/engine,
@@ -1305,7 +1300,7 @@
 /obj/structure/cable/yellow{
 	icon_state = "1-2"
 	},
-/obj/machinery/atmospherics/pipe/simple/purple/hidden,
+/obj/machinery/atmospherics/pipe/smart/simple/purple/hidden,
 /turf/open/floor/plating,
 /area/shuttle/hunter)
 "Wt" = (
